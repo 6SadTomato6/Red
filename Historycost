@@ -1,0 +1,30 @@
+-- Создание таблицы HistoryCost
+CREATE TABLE HistoryCost (
+    ChangeDate DATETIME DEFAULT GETDATE(),
+    ProductID INT NOT NULL,
+    OldPrice DECIMAL(10, 2) NOT NULL,
+    NewPrice DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+GO
+
+-- Создание триггера для записи изменений цен
+CREATE TRIGGER trg_ProductPriceUpdate
+ON Products
+AFTER UPDATE
+AS
+BEGIN
+    IF UPDATE(Price)
+    BEGIN
+        INSERT INTO HistoryCost (ProductID, OldPrice, NewPrice)
+        SELECT 
+            i.ProductID, 
+            d.Price AS OldPrice, 
+            i.Price AS NewPrice
+        FROM 
+            inserted i
+        JOIN 
+            deleted d ON i.ProductID = d.ProductID;
+    END
+END;
+GO
