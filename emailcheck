@@ -1,0 +1,22 @@
+-- Создание процедуры для проверки корректности email
+CREATE PROCEDURE CheckEmailValidity
+AS
+BEGIN
+    SELECT 
+        Email,
+        CASE 
+            WHEN Email LIKE '%[^a-zA-Z0-9@._]%' OR
+                 Email NOT LIKE '%@%.__%' OR
+                 Email LIKE '%@%@%' OR
+                 Email LIKE '%..%' OR
+                 Email LIKE '%@.%' OR
+                 Email LIKE '%.@%' THEN 0
+            ELSE 1
+        END AS IsValid
+    FROM Customers;
+END;
+GO
+
+-- Запуск процедуры
+EXEC CheckEmailValidity;
+GO
