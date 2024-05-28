@@ -1,0 +1,59 @@
+
+CREATE DATABASE BD11;
+GO
+
+USE BD11;
+GO
+
+CREATE TABLE Users (
+    Username NVARCHAR(50) NOT NULL,
+    Password NVARCHAR(50) NOT NULL
+);
+GO
+
+
+CREATE PROCEDURE CreateUsersAndDatabases
+AS
+BEGIN
+    DECLARE @i INT = 1;
+    DECLARE @username NVARCHAR(50);
+    DECLARE @password NVARCHAR(50);
+    DECLARE @dbname NVARCHAR(50);
+    DECLARE @sql NVARCHAR(MAX);
+
+    WHILE @i <= 10
+    BEGIN
+        SET @username = 'user' + CAST(@i AS NVARCHAR(50));
+        SET @password = (
+            SELECT SUBSTRING(CONVERT(VARCHAR(40), NEWID()), 0, 4) +
+                   SUBSTRING(CONVERT(VARCHAR(40), NEWID()), 0, 3)
+        );
+        SET @dbname = 'BD' + CAST(@i AS NVARCHAR(50));
+
+        -- создает пользователя
+        SET @sql = 'CREATE LOGIN ' + @username + ' WITH PASSWORD = ''' + @password + ''';';
+        EXEC sp_executesql @sql;
+
+        -- создает бд
+        SET @sql = 'CREATE DATABASE ' + @dbname + ';';
+        EXEC sp_executesql @sql;
+
+        -- в бд пользователя 
+        SET @sql = 'USE ' + @dbname + '; CREATE USER ' + @username + ' FOR LOGIN ' + @username + ';';
+        EXEC sp_executesql @sql;
+
+        -- присваивание ролей
+        SET @sql = 'USE ' + @dbname + '; ALTER ROLE db_owner ADD MEMBER ' + @username + ';';
+        EXEC sp_executesql @sql;
+
+        --добавление в таблицу пользователей
+        INSERT INTO Users (Username, Password) VALUES (@username, @password);
+
+        SET @i = @i + 1;
+    END
+END
+GO
+
+--выполнение процедуры
+EXEC CreateUsersAndDatabases;
+GO
