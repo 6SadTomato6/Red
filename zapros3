@@ -1,0 +1,6 @@
+USE TradingDB;
+GO
+UPDATE Products
+SET Price = Price * 0.75
+WHERE ManufacturerCountry = 'Russia';
+GO
