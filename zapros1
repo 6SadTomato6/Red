@@ -1,0 +1,23 @@
+USE TradingDB;
+GO
+
+SELECT 
+    c.CustomerID,
+    c.FirstName,
+    c.LastName,
+    o.OrderID,
+    o.OrderDate,
+    SUM(od.Quantity * p.Price) AS TotalAmount
+FROM 
+    Customers c
+JOIN 
+    Orders o ON c.CustomerID = o.CustomerID
+JOIN 
+    OrderDetails od ON o.OrderID = od.OrderID
+JOIN 
+    Products p ON od.ProductID = p.ProductID
+GROUP BY 
+    c.CustomerID, c.FirstName, c.LastName, o.OrderID, o.OrderDate
+ORDER BY 
+    c.CustomerID, o.OrderID;
+GO
