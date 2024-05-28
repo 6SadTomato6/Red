@@ -1,0 +1,5 @@
+USE TradingDB;
+GO
+DELETE FROM Products
+WHERE ExpiryDate < GETDATE();
+GO
