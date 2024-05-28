@@ -1,0 +1,17 @@
+
+USE BD;
+GO
+
+OPEN SYMMETRIC KEY PasswordKey
+    DECRYPTION BY CERTIFICATE PasswordCert;
+GO
+
+
+SELECT 
+    Username,
+    CAST(DECRYPTBYKEY(Password) AS NVARCHAR(MAX)) AS DecryptedPassword
+FROM Users;
+GO
+
+CLOSE SYMMETRIC KEY PasswordKey;
+GO
